@@ -1,0 +1,34 @@
+# Prueba 6: Prueba negativa con un fallo lexico.
+
+string bienvenida = "Sistema de Inventario de Tienda";
+Write(bienvenida);
+
+int camisas_bodega = 50;
+int pantalones_bodega = 30;
+int zapatos_bodega = 15;
+
+float precio_camisa = 120.50;
+float precio_pantalon = 200.0;
+float precio_zapato = 350.0;
+
+int total_prendas;
+total_prendas = camisas_bodega + pantalones_bodega + zapatos_bodega;
+
+Write("El total de prendas en el inventario es:");
+Write(total_prendas);
+
+int iterador = 0;
+while (iterador < 3) {
+    iterador = iterador + 1;
+    Write("Actualizando registros de base de datos...");
+}
+
+#ERRORES LEXICOS
+# 1. El signo de interrogacion (?) y dolar ($) no existen en MiniLang
+# 2. Las comillas simples ('') no son validas para strings
+
+float $precio_descuento = 99.99;
+int cantidad_defectuosa? = 5;
+string aviso_sistema = 'Error de conexion en servidor local';
+
+Write("El lexer debe detener el proceso y esta linea no aparecera.");

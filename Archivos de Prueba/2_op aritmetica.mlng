@@ -1,0 +1,50 @@
+# Prueba 2: Un programa que realice una operacion aritmetica basica.
+
+int dias_trabajados = 15;
+int horas_por_dia = 8;
+int horas_extras = 12;
+
+float pago_por_hora = 25.50;
+float multiplicador_extra = 1.5;
+float porcentaje_impuesto = 0.12;
+float porcentaje_seguro = 0.05;
+
+float sueldo_base;
+float pago_hora_extra;
+float sueldo_extra;
+float sueldo_bruto;
+
+int total_horas_normales;
+total_horas_normales = dias_trabajados * horas_por_dia;
+
+sueldo_base = total_horas_normales * pago_por_hora;
+
+pago_hora_extra = pago_por_hora * multiplicador_extra;
+sueldo_extra = horas_extras * pago_hora_extra;
+
+sueldo_bruto = sueldo_base + sueldo_extra;
+
+float deduccion_impuesto;
+float deduccion_seguro;
+float total_deducciones;
+
+deduccion_impuesto = sueldo_bruto * porcentaje_impuesto;
+deduccion_seguro = sueldo_bruto * porcentaje_seguro;
+total_deducciones = deduccion_impuesto + deduccion_seguro;
+
+float bono_productividad = 250.0;
+float sueldo_neto;
+
+sueldo_neto = sueldo_bruto - total_deducciones + bono_productividad;
+
+Write("Detalle de Nomina:");
+Write("Horas normales trabajadas:");
+Write(total_horas_normales);
+Write("Sueldo base acumulado:");
+Write(sueldo_base);
+Write("Sueldo por horas extras:");
+Write(sueldo_extra);
+Write("Total deducciones (Impuestos + Seguro):");
+Write(total_deducciones);
+Write("Total a pagar al empleado (Sueldo Neto):");
+Write(sueldo_neto);

@@ -1,0 +1,35 @@
+# Prueba 1: Un programa que imprima un "Hola Mundo".
+
+string titulo = "MENU PRINCIPAL";
+string op1 = "1. Iniciar sesion";
+string op2 = "2. Registrar usuario nuevo";
+string op3 = "3. Recuperar contraseña";
+string op4 = "4. Salir del sistema";
+
+string mensaje_sistema_1 = "Cargando configuracion de usuario...";
+string mensaje_sistema_2 = "Verificando conexion a internet...";
+string mensaje_sistema_3 = "Sincronizando reloj interno...";
+string estado_ok = "[COMPLETADO]";
+string espacio = " ";
+
+Write(mensaje_sistema_1);
+Write(estado_ok);
+Write(mensaje_sistema_2);
+Write(estado_ok);
+Write(mensaje_sistema_3);
+Write(estado_ok);
+Write(espacio);
+
+Write(titulo);
+Write(op1);
+Write(op2);
+Write(op3);
+Write(op4);
+
+string hola = "Hola Mundo";
+string usuario = "Administrador";
+
+Write("Mensaje del sistema:");
+Write(hola);
+Write(usuario);
+

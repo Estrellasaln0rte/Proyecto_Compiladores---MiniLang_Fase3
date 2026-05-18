@@ -1,0 +1,45 @@
+# Prueba 4: Definicion de una funcion que reciba parametros y devuelva un resultado, llamada desde el principal.
+
+float calcular_descuento(float precio_original, float porcentaje_rebaja) {
+    float monto_descontado = precio_original * porcentaje_rebaja;
+    float precio_final = precio_original - monto_descontado;
+    return precio_final;
+}
+
+float aplicar_impuesto(float precio_sin_impuesto) {
+    float tasa_iva = 0.12;
+    float impuesto = precio_sin_impuesto * tasa_iva;
+    float precio_con_impuesto = precio_sin_impuesto + impuesto;
+    return precio_con_impuesto;
+}
+
+void imprimir_recibo(string articulo, float total_pagar) {
+    Write("TICKET DE COMPRA");
+    Write("Articulo comprado:");
+    Write(articulo);
+    Write("Total a pagar (con IVA incluido):");
+    Write(total_pagar);
+}
+
+string nombre_producto = "Computadora Portatil";
+float precio_vitrina = 4500.00;
+float descuento_navideno = 0.15; 
+
+float precio_con_descuento;
+float total_final_factura;
+
+Write("Iniciando sistema de caja registradora...");
+
+precio_con_descuento = calcular_descuento(precio_vitrina, descuento_navideno);
+
+total_final_factura = aplicar_impuesto(precio_con_descuento);
+
+imprimir_recibo(nombre_producto, total_final_factura);
+
+float cuota_mensual;
+cuota_mensual = total_final_factura / 12.0;
+
+Write("Si desea pagar en 12 visacuotas, su pago mensual sera de:");
+Write(cuota_mensual);
+
+

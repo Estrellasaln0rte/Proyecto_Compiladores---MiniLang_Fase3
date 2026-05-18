@@ -1,0 +1,45 @@
+# Prueba 8: Prueba negativa que mostrara cuando ocurra un fallo semantico.
+
+string mensaje = "Procesamiento de matriculas de vehiculos";
+Write(mensaje);
+
+int modelo_carro = 2022;
+int puertas = 4;
+float cilindraje = 1.6;
+bool tiene_multas = false;
+
+const int NUMERO_LLANTAS = 4;
+const float PRECIO_TRAMITE = 500.50;
+
+if (tiene_multas == false) {
+    Write("El vehiculo esta limpio y puede proceder al tramite.");
+}
+
+int calcular_antiguedad(int anio_modelo) {
+    int anio_actual = 2026;
+    int antiguedad = anio_actual - anio_modelo;
+    return antiguedad;
+}
+
+int anos_uso;
+anos_uso = calcular_antiguedad(modelo_carro);
+
+# ERRORES SEMANTICOS
+# intento de modificar una constante
+NUMERO_LLANTAS = 5;
+PRECIO_TRAMITE = 600.0;
+
+# intentar guardar texto en un numero entero
+modelo_carro = "Toyota Yaris";
+
+# uso de una variable no declarada
+numero_placa = 123456;
+
+# enviar un tipo de dato incorrecto a una funcion (bool en lugar de int)
+anos_uso = calcular_antiguedad(tiene_multas);
+
+# llamada a una funcion que no existe
+imprimir_tarjeta_circulacion();
+
+Write("El analizador semantico protegera la memoria y no imprimira esto.");
+
