@@ -64,7 +64,7 @@ Se transmiten de nodos padres hacia nodos hijos, de manera descendente. Se utili
 - **alcanzable :** indica si un bloque de código puede ejecutarse. 
 
 ## Diseño de Gramática BNF
-La gramática fue adaptada para manejar declaración de variables constantes ('const') y de funciones tipo 'void'.
+La gramática fue adaptada para manejar declaración de variables constantes ('const') y de funciones tipo 'void', así como el uso de funciones sin necesidad de asignación. 
 
 ```
 <programa> ::= <lista_declaraciones> 
@@ -79,8 +79,14 @@ La gramática fue adaptada para manejar declaración de variables constantes ('c
 <parametros> ::= <lista_parametros> | ε
 <lista_parametros> ::= <tipo> ID | <tipo> ID COMA <lista_parametros>
 <bloque> ::= ALLAVE <lista_declaraciones> CLLAVE
-<sentencia> ::= <asignacion> | <if_statement> | <while_statement> | <read_statement> 
-                | <write_statement> | <return_statement> | <bloque>
+<sentencia> ::= <asignacion> 
+                | <if_statement> 
+                | <while_statement> 
+                | <read_statement> 
+                | <write_statement> 
+                | <return_statement> 
+                | <llamada_funcion_sentencia> 
+                | <bloque>
 <asignacion> ::= ID IGUAL <expresion> PUNTOCOMA
 <if_statement> ::= IF APAREN <condicion> CPAREN <sentencia> 
                    | IF APAREN <condicion> CPAREN <sentencia> <else_statement>
