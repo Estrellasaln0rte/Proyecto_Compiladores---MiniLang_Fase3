@@ -96,9 +96,14 @@ def p_sentencia(p):
                 | read_statement
                 | write_statement
                 | return_statement
+                | llamada_funcion_sentencia
                 | bloque'''
     p[0] = p[1]
 
+def p_llamada_funcion_sentencia(p):
+    'llamada_funcion_sentencia : ID APAREN argumentos CPAREN PUNTOCOMA'
+    p[0] = ('call_stmt', p[1], p[3], p.lineno(1), p.lexpos(1))
+    
 def p_asignacion(p): 
     'asignacion : ID IGUAL expresion PUNTOCOMA'
     # manejo de linea y columna en asignacion con lineno y lexpos
