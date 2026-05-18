@@ -87,6 +87,7 @@ La gramática fue adaptada para manejar declaración de variables constantes ('c
                 | <return_statement> 
                 | <llamada_funcion_sentencia> 
                 | <bloque>
+<llamada_funcion_sentencia> ::= ID APAREN <argumentos> CPAREN PUNTOCOMA
 <asignacion> ::= ID IGUAL <expresion> PUNTOCOMA
 <if_statement> ::= IF APAREN <condicion> CPAREN <sentencia> 
                    | IF APAREN <condicion> CPAREN <sentencia> <else_statement>
