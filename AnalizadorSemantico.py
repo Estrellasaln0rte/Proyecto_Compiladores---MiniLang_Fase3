@@ -303,12 +303,20 @@ class AnalizadorSemantico:
         else:
             # determinacion directa de literales
             val_str = str(nodo)
-            if val_str.isdigit(): return int(val_str), 'int'
+            
+            # validación de Strings y null
+            if val_str.startswith('"'): 
+                return val_str.strip('"'), 'string'
+            
+            elif val_str.isdigit(): 
+                return int(val_str), 'int'
+            
             elif '.' in val_str:
                 try: return float(val_str), 'float'
                 except: pass
-            elif val_str.startswith('"'): return val_str.strip('"'), 'string'
-            elif val_str in ('true', 'false'): return val_str == 'true', 'bool'
+                
+            elif val_str in ('true', 'false'): 
+                return val_str == 'true', 'bool'
         
         return None, None
 
