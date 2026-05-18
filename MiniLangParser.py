@@ -24,7 +24,7 @@ def p_error(p):
         errores_sintacticos.append("EOF inesperado: ERROR SINTÁCTICO")
 
 # definición de producciones BNF
-# no se guardan simbolos para estructura '(', ')', '{', '}', '=', ';', ','
+# en el AST no se guardan simbolos para estructura '(', ')', '{', '}', '=', ';', ','
 def p_programa(p): 
     'programa : lista_declaraciones'
     p[0] = ('programa', p[1])
@@ -46,21 +46,30 @@ def p_declaracion(p):
 def p_declaracion_variable_funcion(p): 
     '''declaracion_variable_funcion : tipo ID PUNTOCOMA
                                     | tipo ID IGUAL expresion PUNTOCOMA
+                                    | CONST tipo ID PUNTOCOMA
+                                    | CONST tipo ID IGUAL expresion PUNTOCOMA
                                     | tipo ID APAREN parametros CPAREN bloque'''
+    # se obtienen las líneas y columnas con lineno y lexpos para que el Semantico pueda reportar errores exactos
     if len(p) == 4: 
-        p[0] = ('decl_var_simple', p[1], p[2])
+        p[0] = ('decl_var_simple', p[1], p[2], p.lineno(2), p.lexpos(2))
 
     elif len(p) == 6: 
-        p[0] = ('decl_var_comp', p[1], p[2], p[4])
-        
-    elif len(p) == 7: 
-        p[0] = ('decl_var_func', p[1], p[2], p[4], p[6])
+        p[0] = ('decl_var_comp', p[1], p[2], p[4], p.lineno(2), p.lexpos(2))
+
+    # producciones para const
+    elif len(p) == 5 and p[1] == 'const': 
+        p[0] = ('decl_const_simple', p[2], p[3], p.lineno(3), p.lexpos(3))
+    elif len(p) == 7 and p[1] == 'const': 
+        p[0] = ('decl_const_comp', p[2], p[3], p[5], p.lineno(3), p.lexpos(3))
+    elif len(p) == 7 and p[1]!= 'const': 
+        p[0] = ('decl_var_func', p[1], p[2], p[4], p[6], p.lineno(2), p.lexpos(2))
 
 def p_tipo(p): 
     '''tipo : INT
             | FLOAT
             | STRING 
-            | BOOL'''
+            | BOOL
+            | VOID'''
     p[0] = p[1]
 
 def p_parametros(p): 
@@ -92,16 +101,18 @@ def p_sentencia(p):
 
 def p_asignacion(p): 
     'asignacion : ID IGUAL expresion PUNTOCOMA'
-    p[0] = ('asignacion', p[1], p[3])
+    # manejo de linea y columna en asignacion con lineno y lexpos
+    p[0] = ('asignacion', p[1], p[3], p.lineno(1), p.lexpos(1))
 
 # uso de IFX para asignar nivel de precedencia
 def p_if_statement(p): 
     '''if_statement : IF APAREN condicion CPAREN sentencia %prec IFX
                     | IF APAREN condicion CPAREN sentencia else_statement'''
+    # linea para inalcanzabilidad
     if len(p) == 6: 
-        p[0] = ('if', p[3], p[5])
+        p[0] = ('if', p[3], p[5], p.lineno(1), p.lexpos(1))
     elif len(p) == 7:
-        p[0] = ('if', p[3], p[5], p[6])
+        p[0] = ('if', p[3], p[5], p[6], p.lineno(1), p.lexpos(1))
 
 def p_else_statement(p): 
     'else_statement : ELSE sentencia'
@@ -112,7 +123,7 @@ def p_else_statement(p):
     
 def p_while_statement(p): 
     'while_statement : WHILE APAREN condicion CPAREN sentencia'
-    p[0] = ('while', p[3], p[5])
+    p[0] = ('while', p[3], p[5], p.lineno(1), p.lexpos(1))
     
 def p_read_statement(p): 
     '''read_statement : READ APAREN ID CPAREN PUNTOCOMA
@@ -164,13 +175,20 @@ def p_factor(p):
               | STRING_LINE
               | TRUE
               | FALSE'''
+
+    #ID factor_prima
     if len(p) == 3:
-        if p[2] is None:
-            p[0] = p[1]
+        # manejo de error None, si lo que sea este en p[2] esta vacio, con None, [], "", se trata como variable 
+        if not p[2]: 
+            p[0] = ('id', p[1], p.lineno(1), p.lexpos(1))
         else:
-            p[0] = ('call', p[1], p[2])
+            # si se encontraron argumentos, armar tupla call, guarda el nombre de la funcion y pasar lso parametros 
+            # capturar la lin y col exacta donde se escribio la funcion
+            p[0] = ('call', p[1], p[2], p.lineno(1), p.lexpos(1))
+    # APAREN expresion CPAREN
     elif len(p) == 4:
         p[0] = p[2]
+    # Solo un token
     else:
         p[0] = p[1]
 
