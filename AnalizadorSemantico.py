@@ -195,6 +195,34 @@ class AnalizadorSemantico:
         tipos_esperados = [p[0] for p in parametros] if parametros else []
         simbolo_func['parametros'] = tipos_esperados 
 
+    def visitar_call_stmt(self, nodo, alcanzable):
+        _, nombre_func, argumentos, linea, col = nodo
+        self.linea_actual = linea 
+        self.col_actual = col 
+        
+        if not alcanzable:
+            self.reportar_warning(linea, col, f"Llamada a función '{nombre_func}' en código inalcanzable")
+            
+        simbolo = self.ts.buscar(nombre_func)
+        if not simbolo or simbolo['rol'] != 'funcion':
+            self.reportar_error(linea, col, f"Función '{nombre_func}' no declarada")
+            return None, None
+            
+        params_esperados = simbolo.get('parametros', [])
+        args_enviados = argumentos if argumentos else []
+        
+        # regla de cantidad
+        if len(args_enviados) != len(params_esperados):
+            self.reportar_error(linea, col, f"La función '{nombre_func}' espera {len(params_esperados)} argumentos, recibió {len(args_enviados)}")
+            return None, None
+            
+        # regla de tipo
+        for i, arg_expr in enumerate(args_enviados):
+            _, tipo_arg = self.visitar(arg_expr, alcanzable)
+            if tipo_arg != params_esperados[i]:
+                self.reportar_error(linea, col, f"Un argumento para la función '{nombre_func}' es inválido. Se esperaba '{params_esperados[i]}', pero se recibió '{tipo_arg}'")
+        return None, None
+
         # registro temporal de parametros en el ambito local de la funcion
         self.ts.entrar_ambito()
         if parametros:
