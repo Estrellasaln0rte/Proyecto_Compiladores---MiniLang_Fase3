@@ -48,10 +48,10 @@ class AnalizadorSemantico:
         self.col_actual = 0    
 
     def reportar_error(self, linea, col, mensaje):
-        self.errores.append(f"line {linea}, column {col}: **ERROR** {mensaje}")
+        self.errores.append(f"línea {linea}, columna {col}: **ERROR** {mensaje}")
 
     def reportar_warning(self, linea, col, mensaje):
-        self.warnings.append(f"line {linea}, column {col}: WARNING {mensaje}")
+        self.warnings.append(f"línea {linea}, columna {col}: ADVERTENCIA {mensaje}")
 
     # enviar nodos AST
     def visitar(self, nodo, alcanzable=True):
@@ -70,15 +70,13 @@ class AnalizadorSemantico:
 
     # variables y constantes
     def visitar_decl_var_simple(self, nodo, alcanzable):
-        
-        tipo, nombre_id, linea, col = nodo
+        _, tipo, nombre_id, linea, col = nodo
         if not self.ts.definir(nombre_id, tipo, None, 'variable', linea, col):
             self.reportar_error(linea, col, f"Variable '{nombre_id}' ya declarada en este ámbito")
         return None, None
 
     def visitar_decl_var_comp(self, nodo, alcanzable):
-        
-        tipo_dato, nombre_id, expresion, linea, col = nodo
+        _, tipo_dato, nombre_id, expresion, linea, col = nodo
         self.linea_actual = linea 
         self.col_actual = col 
         
@@ -89,13 +87,12 @@ class AnalizadorSemantico:
         valor, tipo_expr = self.visitar(expresion, alcanzable)
 
         # validacion de tipos y coerción
-        # #int -> float
         if tipo_expr:
             if tipo_dato == 'float' and tipo_expr == 'int':
                 tipo_expr = 'float' 
                 if valor is not None: valor = float(valor)
             elif tipo_dato != tipo_expr:
-                self.reportar_error(linea, col, f"Cannot operate type '{tipo_dato}' and '{tipo_expr}'")
+                self.reportar_error(linea, col, f"No se puede operar el tipo '{tipo_dato}' con '{tipo_expr}'")
                 valor = None
 
         if not self.ts.definir(nombre_id, tipo_dato, valor, 'variable', linea, col):
@@ -103,14 +100,34 @@ class AnalizadorSemantico:
         return None, None
 
     def visitar_decl_const_simple(self, nodo, alcanzable):
-        
-        tipo_dato, nombre_id, linea, col = nodo
+        _, tipo_dato, nombre_id, linea, col = nodo
         if not self.ts.definir(nombre_id, tipo_dato, None, 'constante', linea, col):
             self.reportar_error(linea, col, f"Constante '{nombre_id}' ya declarada")
 
-    def visitar_asignacion(self, nodo, alcanzable):
+    def visitar_decl_const_comp(self, nodo, alcanzable):
+        _, tipo_dato, nombre_id, expresion, linea, col = nodo
+        self.linea_actual = linea 
+        self.col_actual = col 
         
-        nombre_id, expresion, linea, col = nodo
+        if not alcanzable:
+            self.reportar_warning(linea, col, f"Constante '{nombre_id}' inicializada en código inalcanzable")
+        
+        valor, tipo_expr = self.visitar(expresion, alcanzable)
+
+        if tipo_expr:
+            if tipo_dato == 'float' and tipo_expr == 'int':
+                tipo_expr = 'float' 
+                if valor is not None: valor = float(valor)
+            elif tipo_dato != tipo_expr:
+                self.reportar_error(linea, col, f"No se puede operar el tipo '{tipo_dato}' con '{tipo_expr}'")
+                valor = None
+
+        if not self.ts.definir(nombre_id, tipo_dato, valor, 'constante', linea, col):
+            self.reportar_error(linea, col, f"Constante '{nombre_id}' ya declarada")
+        return None, None
+
+    def visitar_asignacion(self, nodo, alcanzable):
+        _, nombre_id, expresion, linea, col = nodo
         self.linea_actual = linea 
         self.col_actual = col 
         
@@ -134,7 +151,7 @@ class AnalizadorSemantico:
                 tipo_expr = 'float'
                 if valor is not None: valor = float(valor)
             elif simbolo['tipo'] != tipo_expr:
-                self.reportar_error(linea, col, f"Cannot assign type '{tipo_expr}' to variable '{nombre_id}'")
+                self.reportar_error(linea, col, f"No se puede asignar el tipo '{tipo_expr}' a la variable '{nombre_id}'")
                 return None, None
 
         self.ts.actualizar(nombre_id, valor) 
@@ -168,8 +185,7 @@ class AnalizadorSemantico:
 
     # funciones
     def visitar_decl_var_func(self, nodo, alcanzable):
-        
-        tipo_retorno, nombre_id, parametros, bloque, linea, col = nodo
+        _, tipo_retorno, nombre_id, parametros, bloque, linea, col = nodo
         
         if not self.ts.definir(nombre_id, tipo_retorno, None, 'funcion', linea, col):
             self.reportar_error(linea, col, f"Función '{nombre_id}' ya declarada")
@@ -191,23 +207,22 @@ class AnalizadorSemantico:
 
     # evaluaciones matematicas y Constant Folding
     def visitar_expresion(self, nodo, alcanzable):
-        
-        termino, expresion_prima = nodo
+        _, termino, expresion_prima = nodo
         valor_izq, tipo_izq = self.visitar_termino(termino, alcanzable)
 
         if expresion_prima:
             for op, term in expresion_prima:
                 valor_der, tipo_der = self.visitar_termino(term, alcanzable)
                 
-                #reglas de tipado duma resta
+                # reglas de tipado suma resta
                 if tipo_izq == 'int' and tipo_der == 'int': tipo_res = 'int'
                 elif (tipo_izq == 'float' and tipo_der in ('int', 'float')) or (tipo_der == 'float' and tipo_izq in ('int', 'float')): tipo_res = 'float'
                 elif tipo_izq == 'string' and tipo_der == 'string' and op == '+': tipo_res = 'string'
                 else:
-                    self.reportar_error(self.linea_actual, self.col_actual, f"Cannot operate type '{tipo_izq}' and '{tipo_der}' with '{op}'")
+                    self.reportar_error(self.linea_actual, self.col_actual, f"No se puede operar el tipo '{tipo_izq}' y '{tipo_der}' con el operador '{op}'")
                     tipo_res = None 
 
-                # relacion literal de la operacion 
+                # realizacion literal de la operacion 
                 if valor_izq is not None and valor_der is not None:
                     try:
                         if op == '+': valor_izq = valor_izq + valor_der
@@ -227,13 +242,13 @@ class AnalizadorSemantico:
             for op, fact in termino_prima:
                 valor_der, tipo_der = self.visitar_factor(fact, alcanzable)
                 
-                #reglas tipado multiplicacion division
+                # reglas tipado multiplicacion division
                 if tipo_izq == 'int' and tipo_der == 'int':
                     tipo_res = 'float' if op == '/' else 'int'
                 elif (tipo_izq == 'float' and tipo_der in ('int', 'float')) or (tipo_der == 'float' and tipo_izq in ('int', 'float')):
                     tipo_res = 'float'
                 else:
-                    self.reportar_error(self.linea_actual, self.col_actual, f"Cannot operate type '{tipo_izq}' and '{tipo_der}' with '{op}'")
+                    self.reportar_error(self.linea_actual, self.col_actual, f"No se puede operar el tipo '{tipo_izq}' y '{tipo_der}' con el operador '{op}'")
                     tipo_res = None 
 
                 if valor_izq is not None and valor_der is not None:
@@ -248,8 +263,8 @@ class AnalizadorSemantico:
         return valor_izq, tipo_izq
 
     def visitar_factor(self, nodo, alcanzable):
-        if isinstance(nodo, tuple): #busca su valor anterior
-            if nodo[0] == 'id':
+        if isinstance(nodo, tuple): 
+            if nodo[0] == 'id': # busca su valor anterior
                 nombre_id = nodo[1]
                 linea, col = nodo[2], nodo[3]
                 simbolo = self.ts.buscar(nombre_id)
@@ -258,7 +273,7 @@ class AnalizadorSemantico:
                     return None, 'int' 
                 return simbolo.get('valor'), simbolo.get('tipo')
                 
-            elif nodo[0] == 'call': #validacion de llamada a funcion
+            elif nodo[0] == 'call': # validacion de llamada a funcion
                 nombre_func, argumentos = nodo[1], nodo[2]
                 linea, col = nodo[3], nodo[4]
                 
@@ -275,19 +290,18 @@ class AnalizadorSemantico:
                     self.reportar_error(linea, col, f"La función '{nombre_func}' espera {len(params_esperados)} argumentos, recibió {len(args_enviados)}")
                     return None, simbolo['tipo']
                 
-                # regla de tipo recorre los argumentos y los compara 1 a 1 contra lo esperado
+                # regla de tipo recorre los argumentos y los compara 1 a 1
                 for i, arg_expr in enumerate(args_enviados):
-                    
-                    tipo_arg = self.visitar(arg_expr, alcanzable)
+                    _, tipo_arg = self.visitar(arg_expr, alcanzable)
                     if tipo_arg != params_esperados[i]:
-                        self.reportar_error(linea, col, f"An argument for function '{nombre_func}' is invalid. Expected '{params_esperados[i]}', got '{tipo_arg}'")
+                        self.reportar_error(linea, col, f"Un argumento para la función '{nombre_func}' es inválido. Se esperaba '{params_esperados[i]}', pero se recibió '{tipo_arg}'")
                 
                 return None, simbolo['tipo'] 
                 
             elif nodo[0] == 'expresion':
                 return self.visitar_expresion(nodo, alcanzable)
         else:
-            #determinacion directa de literales
+            # determinacion directa de literales
             val_str = str(nodo)
             if val_str.isdigit(): return int(val_str), 'int'
             elif '.' in val_str:
