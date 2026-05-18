@@ -1,0 +1,56 @@
+# Prueba 3: Un programa que demuestre el uso del input de datos y decidir el flujo a traves de un if.
+
+int edad_cliente;
+float dinero_cliente;
+float precio_boleto_normal = 45.0;
+float precio_boleto_nino = 25.0;
+
+string pelicula = "Pelicula de Terror y Accion";
+int edad_minima_permitida = 15;
+bool asientos_disponibles = true;
+
+Write("Taquilla del Cine");
+Write("Pelicula seleccionada:");
+Write(pelicula);
+
+Write("Ingrese su edad:");
+Read(edad_cliente);
+
+Write("Ingrese con cuanto dinero va a pagar:");
+Read(dinero_cliente);
+
+if (asientos_disponibles == true) {
+    
+    if (edad_cliente >= edad_minima_permitida) {
+        Write("Edad verificada. Usted tiene acceso a esta pelicula.");
+        
+        if (dinero_cliente >= precio_boleto_normal) {
+            Write("Pago aceptado. Imprimiendo su boleto normal.");
+            float vuelto_normal;
+            vuelto_normal = dinero_cliente - precio_boleto_normal;
+            Write("Su cambio es:");
+            Write(vuelto_normal);
+        } else {
+            Write("Fondos insuficientes para el boleto normal.");
+        }
+        
+    } else {
+        Write("Lo sentimos, usted es menor de edad y no puede ver esta pelicula.");
+        Write("El sistema evaluara si puede comprar un boleto infantil para otra sala.");
+        
+        if (dinero_cliente >= precio_boleto_nino) {
+            Write("Tiene fondos suficientes para una pelicula clasificacion A.");
+            float vuelto_nino;
+            vuelto_nino = dinero_cliente - precio_boleto_nino;
+            Write("Se ha emitido un boleto infantil. Su cambio es:");
+            Write(vuelto_nino);
+        } else {
+            Write("Fondos insuficientes incluso para un boleto infantil.");
+        }
+    }
+    
+} else {
+    Write("Lo sentimos, la sala para esta pelicula esta completamente llena.");
+}
+
+Write("Gracias por su visita.");

@@ -1,0 +1,50 @@
+# Prueba 5: Programa que contenga definicion de variables, entrada/salida, y que utilice el bucle "while".
+
+int meta_ahorro;
+int deposito_mensual;
+int ahorro_actual = 0;
+int mes_actual = 1;
+bool meta_alcanzada = false;
+
+Write("SIMULADOR DE AHORRO BANCARIO");
+Write("Ingrese la meta total que desea ahorrar:");
+Read(meta_ahorro);
+
+Write("Ingrese cuanto dinero depositara cada mes:");
+Read(deposito_mensual);
+
+Write("Procesando simulacion...");
+
+while (ahorro_actual < meta_ahorro) {
+    ahorro_actual = ahorro_actual + deposito_mensual;
+    
+    Write("Mes numero:");
+    Write(mes_actual);
+    Write("Saldo acumulado actual:");
+    Write(ahorro_actual);
+    
+    if (ahorro_actual >= meta_ahorro) {
+        Write("Felicidades, ha alcanzado o superado su meta de ahorro.");
+        meta_alcanzada = true;
+    }
+    
+    mes_actual = mes_actual + 1;
+}
+
+if (meta_alcanzada == true) {
+    Write("Resumen final de la cuenta:");
+    
+    int meses_totales;
+    meses_totales = mes_actual - 1;
+    
+    Write("Total de meses requeridos:");
+    Write(meses_totales);
+    
+    int dinero_sobrante;
+    dinero_sobrante = ahorro_actual - meta_ahorro;
+    
+    Write("Dinero extra acumulado sobre la meta:");
+    Write(dinero_sobrante);
+}
+
+Write("Fin de la simulacion bancaria.");
